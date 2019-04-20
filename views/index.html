@@ -112,7 +112,7 @@
                       </div>
                     </div>
                     <button type="submit" class="btn btn-success">查找</button>
-                    <a href="#" class="btn btn-warning">新增</a>
+                    <a href="./add.html" class="btn btn-warning">新增</a>
                   </form>
                 </div>
                 <div class="col-md-3">
@@ -166,3 +166,116 @@
 <script src="./lib/bootstrap/js/jquery-1.12.4.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="./lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="./lib/js/template-web.js"></script>
+
+<script type="text/html" id="cq">
+  {{each list}}
+<tr>
+        <td>{{$value.heroName}}</td>
+        <td>{{$value.skillName}}</td>
+        <td><img src="{{$value.heriIcon}}" alt=""></td>
+        <td data-id ="{{$value._id}}">
+          <button onclick="" class="btn btn-success btn-edit">编辑🍞</button>
+
+          <button onclick="" class="btn btn-danger btn-delete">删除👍</button>
+        </td>
+</tr>
+{{/each}}
+</script>
+
+
+<script>
+$(function(){
+
+     let pagenum = 1
+     const pagesize = 10
+     let query = $('input[name=search]').val()
+
+     
+
+     function getData(){
+      $.ajax({
+       url:'heroList',
+       data:{
+         pagenum,
+         pagesize,
+         query
+       },
+       success(backData){
+         console.log(backData);
+         
+         $('tbody').html(template('cq',backData))
+         $('.page-num a').text(pagenum+'/'+backData.totalPage)
+       }
+     })
+     }
+     //默认先调用一次
+     getData()
+
+      //上一页
+     $('.pagination li:first').click(function(){
+       pagenum--
+       getData()
+     })
+
+     //下一页
+     $('.pagination li:last').click(function(){
+       pagenum++
+       getData()
+     })
+
+     //搜索
+     $('input[name=search]').keyup(function(){
+       if(event.keyCode===13){
+         query = $(this).val()
+         getData()
+         return false
+       }
+     })
+
+     //查找 
+     $('button.btn-success').click(function(event){
+        query = $('input[name=search]').val()
+        getData()
+
+        //阻止默认行为
+        // event.preventDefault()
+        return false
+     })
+
+     //编辑
+     $('tbody').on('click','button.btn-edit',function(){
+
+        const id = $(this).parent().data('id')
+
+        window.location.href = './edit.html?id=' + id
+     })
+
+
+     //删除
+     $('tbody').on('click','button.btn-delete',function(){
+       if(confirm('你确定要删除吗')){
+         const id = $(this).parent().data('id')
+
+         $.ajax({
+           url:'/heroDelete',
+           data:{
+             id
+           },
+           success(backData) {
+             alert('下次请不要删除我')
+             getData()
+           }
+         })
+
+       }else{
+         alert('么么哒')
+       }
+     })
+
+})
+
+
+
+
+</script>
